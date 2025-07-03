@@ -1,5 +1,3 @@
-// Import required bot services.
-// See https://aka.ms/bot-services to learn more about the different parts of a bot.
 import {
   CloudAdapter,
   ConfigurationServiceClientCredentialFactory,
@@ -7,10 +5,14 @@ import {
 } from 'botbuilder';
 import * as restify from 'restify';
 
-// This bot's main dialog.
-import { EmptyBot } from './bot';
+import * as workflows from '../../../app/workflows';
+import type {
+  ContextInterface,
+  WorkflowInterface,
+} from '../../../core/interfaces';
+import { BotContextAdapter } from './botContext.adapter';
+import { BotSDKAdapter } from './botSDK.adapter';
 
-// Create HTTP server.
 const server = restify.createServer();
 server.use(restify.plugins.bodyParser());
 
@@ -28,11 +30,8 @@ const credentialsFactory = new ConfigurationServiceClientCredentialFactory({
 const botFrameworkAuthentication =
   createBotFrameworkAuthenticationFromConfiguration(null, credentialsFactory);
 
-// Create adapter.
-// See https://aka.ms/about-bot-adapter to learn more about adapters.
 const adapter = new CloudAdapter(botFrameworkAuthentication);
 
-// Catch-all for errors.
 adapter.onTurnError = async (context, error) => {
   // This check writes out errors to console log .vs. app insights.
   // NOTE: In production environment, you should consider logging this to Azure
@@ -54,11 +53,9 @@ adapter.onTurnError = async (context, error) => {
   );
 };
 
-// Create the main dialog.
-const myBot = new EmptyBot();
+const myBot = new Bot()
 
-// Listen for incoming requests.
 server.post('/api/messages', async (req, res) => {
   // Route received a request to adapter for processing
-  await adapter.process(req, res, context => myBot.run(context));
+  await adapter.process(req, res, (context) => myBot.run(context));
 });
