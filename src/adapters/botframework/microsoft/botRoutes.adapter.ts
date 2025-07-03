@@ -1,3 +1,4 @@
+import type { TurnContext } from 'botbuilder';
 import {
   CloudAdapter,
   ConfigurationServiceClientCredentialFactory,
@@ -5,11 +6,7 @@ import {
 } from 'botbuilder';
 import * as restify from 'restify';
 
-import * as workflows from '../../../app/workflows';
-import type {
-  ContextInterface,
-  WorkflowInterface,
-} from '../../../core/interfaces';
+import { Bot } from '../../../app/bot';
 import { BotContextAdapter } from './botContext.adapter';
 import { BotSDKAdapter } from './botSDK.adapter';
 
@@ -53,9 +50,8 @@ adapter.onTurnError = async (context, error) => {
   );
 };
 
-const myBot = new Bot()
+const myBot = new Bot();
 
 server.post('/api/messages', async (req, res) => {
-  // Route received a request to adapter for processing
-  await adapter.process(req, res, (context) => myBot.run(context));
+  await adapter.process(req, res, context => myBot.run(context));
 });

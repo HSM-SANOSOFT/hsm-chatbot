@@ -1,8 +1,16 @@
-import Handler from '../core/interfaces';
+import type {
+  BotInterface,
+  ContextInterface,
+  HandlerInterface,
+  SdkInterface,
+} from '../core/interfaces';
 
-export class Bot implements Handler {
-  constructor() {
-    super();
-    this.Handler.onMembersAdded() => {}
+import { DemoWorkflow } from './workflows';
+
+export class Bot extend {
+  public async run(ctx: ContextInterface, sdk: SdkInterface): Promise<void>{
+    this.onMessage(async (ctx, next) => {
+      entryWorkflow = new DemoWorkflow()
+      await entryWorkflow.execute(ctx, sdk);
   }
 }
