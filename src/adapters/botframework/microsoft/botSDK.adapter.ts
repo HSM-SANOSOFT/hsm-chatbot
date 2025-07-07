@@ -1,10 +1,11 @@
-import type { Attachment, TurnContext } from 'botbuilder';
+import type { Attachment } from 'botbuilder';
 import {
   CardFactory,
   //Location,
   MessageFactory,
 } from 'botbuilder';
 
+import type { ContextInterface } from '../../../core/interfaces';
 import type { SdkInterface } from '../../../core/interfaces/sdk.interface';
 import type {
   AudioModel,
@@ -19,7 +20,7 @@ import type {
 } from '../../../core/models/messages';
 
 export class BotSDKAdapter implements SdkInterface {
-  constructor(private context: TurnContext) {}
+  constructor(private context: ContextInterface) {}
 
   async sendText(targetId: string, message: TextModel): Promise<void> {
     await this.context.sendActivity(MessageFactory.text(message.content));

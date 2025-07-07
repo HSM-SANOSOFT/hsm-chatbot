@@ -4,4 +4,6 @@ export interface ContextInterface {
   getChannelId(): string;
   getConversationId(): string;
   getTimestamp(): Date;
+
+  sendActivity(activity: unknown): Promise<void>;
 }

@@ -24,4 +24,8 @@ export class BotContextAdapter implements ContextInterface {
   getTimestamp(): Date {
     return this.context.activity.timestamp || new Date();
   }
+
+  async sendActivity(activity: unknown): Promise<void> {
+    await this.context.sendActivity(activity);
+  }
 }

@@ -1,4 +1,3 @@
-import type { TurnContext } from 'botbuilder';
 import {
   CloudAdapter,
   ConfigurationServiceClientCredentialFactory,
@@ -50,8 +49,12 @@ adapter.onTurnError = async (context, error) => {
   );
 };
 
-const myBot = new Bot();
-
 server.post('/api/messages', async (req, res) => {
-  await adapter.process(req, res, context => myBot.run(context));
+  await adapter.process(req, res, async context => {
+    const ctx = new BotContextAdapter(context);
+    const sdk = new BotSDKAdapter(ctx);
+
+    const myBot = new Bot(ctx, sdk);
+    await myBot.run();
+  });
 });

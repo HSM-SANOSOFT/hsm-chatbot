@@ -5,13 +5,20 @@ import type {
 } from '../../core/interfaces';
 
 export class DemoWorkflow implements WorkflowInterface {
+  constructor(
+    private readonly ctx: ContextInterface,
+    private readonly sdk: SdkInterface,
+  ) {}
+
   readonly id = 'demo.workflow';
 
-  async execute(ctx: ContextInterface, sdk: SdkInterface): Promise<boolean> {
-    const text = ctx.getText();
-    const userId = ctx.getUserId();
+  async execute(): Promise<boolean> {
+    const text = this.ctx.getText();
+    const userId = this.ctx.getUserId();
 
-    await sdk.sendText(userId, { content: `Processed your input: ${text}` });
+    await this.sdk.sendText(userId, {
+      content: `Processed your input: ${text}`,
+    });
 
     return true;
   }
