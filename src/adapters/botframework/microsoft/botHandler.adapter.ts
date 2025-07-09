@@ -1,3 +1,4 @@
+/*
 import { ActivityHandler } from 'botbuilder';
 
 import type {
@@ -15,3 +16,4 @@ export class MsBotHandlerAdapter implements HandlerInterface {
     await this.handler.onMessage(workflow.execute);
   }
 }
+*/

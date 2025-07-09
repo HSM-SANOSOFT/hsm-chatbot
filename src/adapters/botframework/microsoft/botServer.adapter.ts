@@ -1,37 +1,21 @@
-// adapters/botframework/microsoft/botServer.adapter.ts
-
 import type { TurnContext } from 'botbuilder';
 import {
   CloudAdapter,
-  ConfigurationServiceClientCredentialFactory,
-  createBotFrameworkAuthenticationFromConfiguration,
+  ConfigurationBotFrameworkAuthentication,
 } from 'botbuilder';
 import * as restify from 'restify';
 
 import type { ServerInterface } from '../../../core/interfaces';
 
 export class MsBotServerAdapter implements ServerInterface {
-  private server: restify.Server;
+  private server = restify.createServer();
   private adapter: CloudAdapter;
   private pendingResolvers: Array<(ctx: TurnContext) => void> = [];
 
   constructor() {
-    this.server = restify.createServer();
     this.server.use(restify.plugins.bodyParser());
-
-    const credsFactory = new ConfigurationServiceClientCredentialFactory({
-      MicrosoftAppId: process.env.MicrosoftAppId!,
-      MicrosoftAppPassword: process.env.MicrosoftAppPassword!,
-      MicrosoftAppType: process.env.MicrosoftAppType!,
-      MicrosoftAppTenantId: process.env.MicrosoftAppTenantId!,
-    });
-
-    const auth = createBotFrameworkAuthenticationFromConfiguration(
-      null,
-      credsFactory,
-    );
-    this.adapter = new CloudAdapter(auth);
-
+    const botAuth = new ConfigurationBotFrameworkAuthentication();
+    this.adapter = new CloudAdapter(botAuth);
     this.adapter.onTurnError = async (context, error) => {
       console.error('[onTurnError] unhandled error:', error);
       await context.sendTraceActivity(
@@ -58,9 +42,11 @@ export class MsBotServerAdapter implements ServerInterface {
     });
 
     await new Promise<void>(resolve => {
-      const port = process.env.PORT || 3978;
+      const port = 3000;
       this.server.listen(port, () => {
-        console.log(`MsBotServerAdapter listening on port ${port}`);
+        console.log(
+          `Server running. Connect MS Bot Framework Emulator to http://localhost:${port}/api/messages`,
+        );
         resolve();
       });
     });

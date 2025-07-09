@@ -1,3 +1,5 @@
+/*
+
 import { DemoWorkflow } from '../../app/workflows';
 import type {
   BotFrameworkInterface,
@@ -21,3 +23,4 @@ export class BotService implements BotInterface {
     console.log('Bot is restarting...');
   }
 }
+*/

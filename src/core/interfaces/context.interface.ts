@@ -1,10 +1,10 @@
-export interface ContextInterface {
-  getContext?(): Promise<ContextInterface>
-  getUserId(): string;
-  getText(): string;
-  getChannelId(): string;
-  getConversationId(): string;
-  getTimestamp(): Date;
+import type { ActivityModel } from '../models/activity.model';
 
-  sendActivity(activity: unknown): Promise<void>;
+export interface ContextInterface {
+  readonly activity: ActivityModel;
+  sendActivity(activity: Partial<ActivityModel> | string): Promise<void>;
+  sendActivities(activities: Array<Partial<ActivityModel> | string>): Promise<void>;
+  sendTraceActivity(name: string, value: any, valueType?: string, label?: string): Promise<void>;
+  updateActivity(activity: Partial<ActivityModel>): Promise<void>;
+  deleteActivity(activityId: string): Promise<void>;
 }

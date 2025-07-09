@@ -1,3 +1,4 @@
+/*
 import type { TurnContext } from 'botbuilder';
 
 import type {
@@ -23,3 +24,4 @@ export class MsBotFrameworkAdapter implements BotFrameworkInterface {
     });
   }
 }
+*/

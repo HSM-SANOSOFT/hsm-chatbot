@@ -1,3 +1,4 @@
+/*
 import type {
   ContextInterface,
   SdkInterface,
@@ -22,3 +23,4 @@ export class DemoWorkflow implements WorkflowInterface {
     return true;
   }
 }
+*/

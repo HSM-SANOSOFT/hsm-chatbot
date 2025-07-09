@@ -1,3 +1,4 @@
+export * from './activity.interface'
 export * from './bot.interface';
 export * from './botFramework.interface';
 export * from './context.interface';

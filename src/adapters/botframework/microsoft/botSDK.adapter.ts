@@ -1,3 +1,4 @@
+/*
 import type { Attachment } from 'botbuilder';
 import {
   CardFactory,
@@ -115,5 +116,5 @@ export class MsBotSDKAdapter implements SdkInterface {
     };
     await this.context.sendActivity(MessageFactory.attachment(Location.));
   }  
-  */
 }
+*/
