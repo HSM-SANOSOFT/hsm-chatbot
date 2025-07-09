@@ -1,14 +1,27 @@
+// src/index.ts
+
+import type { TurnContext } from 'botbuilder';
+
 import { MsBotServerAdapter } from './adapters/botframework/microsoft/botServer.adapter';
-import {
-  BotFrameworkService,
-  BotService,
-  ServerService,
-} from './core/services';
+import { ServerService } from './core/services';
 
-const server = new ServerService([new MsBotServerAdapter()]);
-const frameworks = new BotFrameworkService(servers);
-const bot = new BotService(frameworks);
+async function main() {
+  // Compose your HTTP server adapter(s)
+  const server = new ServerService([new MsBotServerAdapter()]);
 
-while (true) {
-  bot.run();
+  // Start listening
+  await server.start();
+  console.log('Server is listening for incoming activities...');
+
+  // Loop forever, logging each incoming TurnContext
+
+  while (true) {
+    const ctx = await server.onRequest<TurnContext>();
+    console.log('Received context:', ctx);
+  }
 }
+
+main().catch(err => {
+  console.error('Fatal error in main loop:', err);
+  process.exit(1);
+});

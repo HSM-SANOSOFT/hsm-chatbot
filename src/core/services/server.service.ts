@@ -1,22 +1,21 @@
 import type { ServerInterface } from '../interfaces';
 
 export class ServerService implements ServerInterface {
-  constructor(public readonly adapters: ServerInterface[]) {}
+  constructor(private readonly adapters: ServerInterface[]) {}
+  async start(): Promise<void> {
+    await Promise.all(this.adapters.map(a => a.start()));
+  }
 
-  start<T>(): Promise<T> {
-    this.adapters.forEach(adapter => adapter.restart());
+  onRequest<T>(): Promise<T> {
+    return Promise.race(this.adapters.map(a => a.onRequest<T>()));
   }
 
   stop(): void {
-    this.adapters.forEach(adapter => adapter.stop());
+    this.adapters.forEach(a => a.stop());
   }
 
-  restart(): void {
-    this.adapters.forEach(adapter => adapter.restart());
-  }
-  onRequest<T>(): Promise<T> {
-    return Promise.all(
-      this.adapters.map(adapter => adapter.onRequest<T>()),
-    ).then(results => results[0]);
+  async restart(): Promise<void> {
+    this.stop();
+    await this.start();
   }
 }
