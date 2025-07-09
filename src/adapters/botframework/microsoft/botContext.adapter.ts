@@ -1,31 +1,31 @@
-import type { TurnContext } from 'botbuilder';
+import type { Activity, TurnContext } from 'botbuilder';
 
 import type { ContextInterface } from '../../../core/interfaces';
 
-export class BotContextAdapter implements ContextInterface {
-  constructor(private context: TurnContext) {}
+export class MsBotContextAdapter implements ContextInterface {
+  constructor(public readonly ctx: TurnContext) {}
 
   getUserId(): string {
-    return this.context.activity.from.id;
+    return this.ctx.activity.from.id;
   }
 
   getText(): string {
-    return this.context.activity.text || '';
+    return this.ctx.activity.text || '';
   }
 
   getChannelId(): string {
-    return this.context.activity.channelId;
+    return this.ctx.activity.channelId;
   }
 
   getConversationId(): string {
-    return this.context.activity.conversation.id;
+    return this.ctx.activity.conversation.id;
   }
 
   getTimestamp(): Date {
-    return this.context.activity.timestamp || new Date();
+    return this.ctx.activity.timestamp || new Date();
   }
 
   async sendActivity(activity: unknown): Promise<void> {
-    await this.context.sendActivity(activity);
+    await this.ctx.sendActivity(activity as Activity);
   }
 }

@@ -11,13 +11,13 @@ import type {
 } from '../models/messages';
 
 export interface SdkInterface {
-  sendAudio(targetId: string, message: AudioModel): Promise<void>;
-  sendCard(targetId: string, message: CardModel): Promise<void>;
-  sendCarousel(targetId: string, message: CarouselModel): Promise<void>;
-  sendFile(targetId: string, message: FileModel): Promise<void>;
-  sendImage(targetId: string, message: ImageModel): Promise<void>;
-  sendMenu(targetId: string, message: MenuModel): Promise<void>;
-  sendText(targetId: string, message: TextModel): Promise<void>;
-  sendVideo(targetId: string, message: VideoModel): Promise<void>;
-  //sendLocation(targetId: string, message: LocationModel): Promise<void>;
+  sendAudio(message: AudioModel): Promise<void>;
+  sendCard(message: CardModel): Promise<void>;
+  sendCarousel(message: CarouselModel): Promise<void>;
+  sendFile(message: FileModel): Promise<void>;
+  sendImage(message: ImageModel): Promise<void>;
+  sendMenu(message: MenuModel): Promise<void>;
+  sendText(message: TextModel): Promise<void>;
+  sendVideo(message: VideoModel): Promise<void>;
+  //sendLocation( message: LocationModel): Promise<void>;
 }

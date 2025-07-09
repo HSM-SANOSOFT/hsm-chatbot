@@ -1,4 +1,5 @@
 export interface ContextInterface {
+  getContext?(): Promise<ContextInterface>
   getUserId(): string;
   getText(): string;
   getChannelId(): string;

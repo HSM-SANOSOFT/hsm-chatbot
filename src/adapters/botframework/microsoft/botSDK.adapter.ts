@@ -19,23 +19,23 @@ import type {
   VideoModel,
 } from '../../../core/models/messages';
 
-export class BotSDKAdapter implements SdkInterface {
-  constructor(private context: ContextInterface) {}
+export class MsBotSDKAdapter implements SdkInterface {
+  constructor(private readonly ctx: ContextInterface) {}
 
-  async sendText(targetId: string, message: TextModel): Promise<void> {
-    await this.context.sendActivity(MessageFactory.text(message.content));
+  async sendText(message: TextModel): Promise<void> {
+    await this.ctx.sendActivity(MessageFactory.text(message.content));
   }
 
-  async sendMenu(targetId: string, message: MenuModel): Promise<void> {
+  async sendMenu(message: MenuModel): Promise<void> {
     const choices = message.items.map(item => item.label);
     const activity = MessageFactory.suggestedActions(
       choices,
       message.description,
     );
-    await this.context.sendActivity(activity);
+    await this.ctx.sendActivity(activity);
   }
 
-  async sendCard(targetId: string, message: CardModel): Promise<void> {
+  async sendCard(message: CardModel): Promise<void> {
     const card: Attachment = CardFactory.heroCard(
       message.title,
       message.description,
@@ -46,10 +46,10 @@ export class BotSDKAdapter implements SdkInterface {
         value: btn.value,
       })),
     );
-    await this.context.sendActivity(card);
+    await this.ctx.sendActivity(card);
   }
 
-  async sendCarousel(targetId: string, message: CarouselModel): Promise<void> {
+  async sendCarousel(message: CarouselModel): Promise<void> {
     const attachments: Attachment[] = message.cards.map(card =>
       CardFactory.heroCard(
         card.title,
@@ -62,51 +62,51 @@ export class BotSDKAdapter implements SdkInterface {
         })),
       ),
     );
-    await this.context.sendActivity({
+    await this.ctx.sendActivity({
       attachments,
       attachmentLayout: 'carousel',
     });
   }
 
-  async sendImage(targetId: string, message: ImageModel): Promise<void> {
+  async sendImage(message: ImageModel): Promise<void> {
     const attachment: Attachment = {
       contentType: message.mimeType || 'image/jpeg',
       contentUrl: message.url,
       name: message.title || 'Image',
     };
-    await this.context.sendActivity(MessageFactory.attachment(attachment));
+    await this.ctx.sendActivity(MessageFactory.attachment(attachment));
   }
 
-  async sendVideo(targetId: string, message: VideoModel): Promise<void> {
+  async sendVideo(message: VideoModel): Promise<void> {
     const attachment: Attachment = {
       contentType: message.mimeType || 'video/mp4',
       contentUrl: message.url,
       name: message.title || 'Video',
     };
-    await this.context.sendActivity(MessageFactory.attachment(attachment));
+    await this.ctx.sendActivity(MessageFactory.attachment(attachment));
   }
 
-  async sendAudio(targetId: string, message: AudioModel): Promise<void> {
+  async sendAudio(message: AudioModel): Promise<void> {
     const attachment: Attachment = {
       contentType: message.mimeType || 'audio/mpeg',
       contentUrl: message.url,
       name: message.title || 'Audio',
     };
-    await this.context.sendActivity(MessageFactory.attachment(attachment));
+    await this.ctx.sendActivity(MessageFactory.attachment(attachment));
   }
 
-  async sendFile(targetId: string, message: FileModel): Promise<void> {
+  async sendFile(message: FileModel): Promise<void> {
     const attachment: Attachment = {
       contentType: message.mimeType || 'application/pdf',
       contentUrl: message.url,
       name: message.title || 'File',
     };
-    await this.context.sendActivity(MessageFactory.attachment(attachment));
+    await this.ctx.sendActivity(MessageFactory.attachment(attachment));
   }
 
   /*
   
-  async sendLocation(targetId: string, message: LocationModel): Promise<void> {
+  async sendLocation(  message: LocationModel): Promise<void> {
     const location: Location = {
       latitude: message.latitude,
       longitude: message.longitude,

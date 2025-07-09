@@ -1,9 +1,12 @@
+import type { WorkflowInterface } from './workflow.interface';
+
 export interface HandlerInterface {
-  getActivityType(): string;
+  handler: unknown;
+  getActivityType?(): string;
 
-  onMessageReceived?(): Promise<void>;
-  onMessageSent?(): Promise<void>;
+  onMessage?(workflow: WorkflowInterface): Promise<void>;
+  onMessageSent?(workflow: WorkflowInterface): Promise<void>;
 
-  onMemberAdded?(): Promise<void>;
-  onMemberRemoved?(): Promise<void>;
+  onMemberAdded?(workflow: WorkflowInterface): Promise<void>;
+  onMemberRemoved?(workflow: WorkflowInterface): Promise<void>;
 }
