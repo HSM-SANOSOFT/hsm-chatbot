@@ -1,0 +1,137 @@
+name: hsm
+
+networks:
+  hsm-network:
+    name: hsm-network
+    driver: bridge
+
+volumes:
+  pgdata:
+    name: hsm-postgres-data
+  redisdata:
+    name: hsm-redis-data
+  miniodata:
+    name: hsm-minio-data
+
+services:
+  hsm-app-be-main:
+    image: hsm-app-be-main
+    build:
+      context: ../
+      args:
+        - APP_TYPE=main
+      dockerfile: ./docker/dockerFile.dev
+    container_name: hsm-app-be-main
+    ports:
+      - 3209:3000
+    networks:
+      - hsm-network
+    volumes:
+      - ../:/app
+      - /app/node_modules
+    env_file:
+      - ../.env
+    environment:
+      SECRET_PATH: /app/be
+    restart: unless-stopped
+    depends_on:
+      - hsm-app-db-postgres
+      - hsm-app-db-redis
+      - hsm-app-db-minio
+      - hsm-app-be-worker
+
+  hsm-app-be-worker:
+    image: hsm-app-be-worker
+    build:
+      context: ../
+      args:
+        - APP_TYPE=worker
+      dockerfile: ./docker/dockerFile.dev
+    container_name: hsm-app-be-worker
+    networks:
+      - hsm-network
+    volumes:
+      - ../:/app
+      - /app/node_modules
+    env_file:
+      - ../.env
+    environment:
+      SECRET_PATH: /app/be
+    restart: unless-stopped
+
+  hsm-app-db-postgres:
+    image: postgres:17-bookworm
+    container_name: hsm-app-db-postgres
+    ports:
+      - 5432:5432
+    networks:
+      - hsm-network
+    volumes:
+      - ./postgres/init-schemas.sql:/docker-entrypoint-initdb.d/postgres.schemas.sql:ro
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: hsm
+    restart: unless-stopped
+
+  hsm-app-db-redis:
+    image: redis:8-bookworm
+    container_name: hsm-app-db-redis
+    ports:
+      - 6379:6379
+    networks:
+      - hsm-network
+    volumes:
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+      - ./redis/users.acl:/usr/local/etc/redis/users.acl:ro
+      - redisdata:/data
+    environment:
+      REDIS_USER: redis
+      REDIS_PASSWORD: redis
+    command: [redis-server, /usr/local/etc/redis/redis.conf]
+    restart: unless-stopped
+
+  hsm-app-db-minio:
+    image: minio/minio:latest
+    container_name: hsm-app-db-minio
+    networks:
+      - hsm-network
+    environment:
+      MINIO_ROOT_USER: minio_user
+      MINIO_ROOT_PASSWORD: minio_password
+    ports:
+      - 19000:9000
+      - 19001:9001
+    volumes:
+      - miniodata:/data
+    command: server /data --console-address ":9001"
+    restart: unless-stopped
+
+  redisinsight:
+    image: redis/redisinsight:latest
+    container_name: redisinsight
+    ports:
+      - 5540:5540
+    networks:
+      - hsm-network
+    environment:
+      RI_ACCEPT_TERMS_AND_CONDITIONS: true
+      RI_REDIS_HOST: hsm-app-db-redis
+      RI_REDIS_PORT: 6379
+      RI_REDIS_USERNAME: redis
+      RI_REDIS_PASSWORD: redis
+    restart: unless-stopped
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    ports:
+      - 5050:80
+    volumes:
+      - ./postgres/servers.json:/pgadmin4/servers.json:ro
+    networks:
+      - hsm-network
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: secret
