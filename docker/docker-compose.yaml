@@ -1,71 +1,74 @@
-name: hsm
+name: hsm-chatbot
 
 networks:
-  hsm-network:
-    name: hsm-network
+  hsm-chatbot-network:
+    name: hsm-chatbot-network
     driver: bridge
 
 volumes:
   pgdata:
-    name: hsm-postgres-data
+    name: hsm-chatbot-postgres-data
   redisdata:
-    name: hsm-redis-data
+    name: hsm-chatbot-redis-data
   miniodata:
-    name: hsm-minio-data
+    name: hsm-chatbot-minio-data
 
 services:
-  hsm-app-be-main:
-    image: hsm-app-be-main
+  hsm-chatbot-base:
+    image: hsm-chatbot-base
+
+  hsm-chatbot-tester:
+    image: hsm-chatbot-tester
+    build:
+      context: ../
+      dockerfile: ./docker/dockerFile.tester
+    container_name: hsm-chatbot-tester
+    ports:
+      - 56150:56150
+    networks:
+      - hsm-chatbot-network
+    env_file:
+      - ../.env
+    environment:
+      BOT_ENDPOINT: http://hsm-chatbot-main:3978/api/messages
+      M365_AGENTS_PLAYGROUND_SERVICE_URL: http://hsm-chatbot-tester:56150/_connector
+      SECRET_PATH: /chatbot
+    restart: unless-stopped
+
+  hsm-chatbot-main:
+    image: hsm-chatbot-main
     build:
       context: ../
       args:
         - APP_TYPE=main
       dockerfile: ./docker/dockerFile.dev
-    container_name: hsm-app-be-main
+    container_name: hsm-chatbot-main
     ports:
-      - 3209:3000
+      - 3978:3978
     networks:
-      - hsm-network
+      - hsm-chatbot-network
     volumes:
       - ../:/app
       - /app/node_modules
     env_file:
       - ../.env
     environment:
-      SECRET_PATH: /app/be
+      SECRET_PATH: /chatbot
     restart: unless-stopped
     depends_on:
-      - hsm-app-db-postgres
-      - hsm-app-db-redis
-      - hsm-app-db-minio
-      - hsm-app-be-worker
+      - hsm-chatbot-base
+      - hsm-chatbot-tester
+    #  - hsm-chatbot-db-postgres
+    #  - hsm-chatbot-db-redis
+    #  - hsm-chatbot-db-minio
 
-  hsm-app-be-worker:
-    image: hsm-app-be-worker
-    build:
-      context: ../
-      args:
-        - APP_TYPE=worker
-      dockerfile: ./docker/dockerFile.dev
-    container_name: hsm-app-be-worker
-    networks:
-      - hsm-network
-    volumes:
-      - ../:/app
-      - /app/node_modules
-    env_file:
-      - ../.env
-    environment:
-      SECRET_PATH: /app/be
-    restart: unless-stopped
-
-  hsm-app-db-postgres:
+  hsm-chatbot-db-postgres:
     image: postgres:17-bookworm
-    container_name: hsm-app-db-postgres
+    container_name: hsm-chatbot-db-postgres
     ports:
       - 5432:5432
     networks:
-      - hsm-network
+      - hsm-chatbot-network
     volumes:
       - ./postgres/init-schemas.sql:/docker-entrypoint-initdb.d/postgres.schemas.sql:ro
       - pgdata:/var/lib/postgresql/data
@@ -75,13 +78,13 @@ services:
       POSTGRES_DB: hsm
     restart: unless-stopped
 
-  hsm-app-db-redis:
+  hsm-chatbot-db-redis:
     image: redis:8-bookworm
-    container_name: hsm-app-db-redis
+    container_name: hsm-chatbot-db-redis
     ports:
       - 6379:6379
     networks:
-      - hsm-network
+      - hsm-chatbot-network
     volumes:
       - ./redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
       - ./redis/users.acl:/usr/local/etc/redis/users.acl:ro
@@ -92,11 +95,11 @@ services:
     command: [redis-server, /usr/local/etc/redis/redis.conf]
     restart: unless-stopped
 
-  hsm-app-db-minio:
+  hsm-chatbot-db-minio:
     image: minio/minio:latest
-    container_name: hsm-app-db-minio
+    container_name: hsm-chatbot-db-minio
     networks:
-      - hsm-network
+      - hsm-chatbot-network
     environment:
       MINIO_ROOT_USER: minio_user
       MINIO_ROOT_PASSWORD: minio_password
@@ -114,10 +117,10 @@ services:
     ports:
       - 5540:5540
     networks:
-      - hsm-network
+      - hsm-chatbot-network
     environment:
       RI_ACCEPT_TERMS_AND_CONDITIONS: true
-      RI_REDIS_HOST: hsm-app-db-redis
+      RI_REDIS_HOST: hsm-chatbot-db-redis
       RI_REDIS_PORT: 6379
       RI_REDIS_USERNAME: redis
       RI_REDIS_PASSWORD: redis
@@ -131,7 +134,7 @@ services:
     volumes:
       - ./postgres/servers.json:/pgadmin4/servers.json:ro
     networks:
-      - hsm-network
+      - hsm-chatbot-network
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@example.com
       PGADMIN_DEFAULT_PASSWORD: secret

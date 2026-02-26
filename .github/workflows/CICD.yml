@@ -1,0 +1,38 @@
+name: CI & CD
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'docker/**'
+      - '.github/**'
+      - 'husky/**'
+      - '.vscode/**'
+      - 'extra/**'
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  lint:
+    uses: ./.github/workflows/lint.yml
+  build:
+    needs: lint
+    strategy:
+      matrix:
+        app_type: [main]
+      max-parallel: 2
+    uses: ./.github/workflows/build.yml
+    with:
+      APP_TYPE: ${{ matrix.app_type }}
+  deploy:
+    needs: build
+    strategy:
+      matrix:
+        app_type: [main]
+      max-parallel: 2
+    uses: ./.github/workflows/deploy.yml
+    with:
+      APP_TYPE: ${{ matrix.app_type }}
+      NAMESPACE: app
