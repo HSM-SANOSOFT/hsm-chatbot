@@ -1,0 +1,12 @@
+@baseUrl = http://127.0.0.1:32000
+
+### Health check
+GET {{baseUrl}}/health
+
+### Send message to a channel
+POST {{baseUrl}}/messages/chatwoot/123456789
+Content-Type: application/json
+
+{
+  "message": "Hello"
+}

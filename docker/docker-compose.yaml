@@ -16,35 +16,21 @@ volumes:
 services:
   hsm-chatbot-base:
     image: hsm-chatbot-base
-
-  hsm-chatbot-tester:
-    image: hsm-chatbot-tester
+    container_name: hsm-chatbot-base
     build:
       context: ../
-      dockerfile: ./docker/dockerFile.tester
-    container_name: hsm-chatbot-tester
-    ports:
-      - 56150:56150
-    networks:
-      - hsm-chatbot-network
-    env_file:
-      - ../.env
-    environment:
-      BOT_ENDPOINT: http://hsm-chatbot-main:3978/api/messages
-      M365_AGENTS_PLAYGROUND_SERVICE_URL: http://hsm-chatbot-tester:56150/_connector
-      SECRET_PATH: /chatbot
-    restart: unless-stopped
+      dockerfile: ./docker/dockerFile.base
 
   hsm-chatbot-main:
     image: hsm-chatbot-main
+    container_name: hsm-chatbot-main
     build:
       context: ../
       args:
         - APP_TYPE=main
       dockerfile: ./docker/dockerFile.dev
-    container_name: hsm-chatbot-main
     ports:
-      - 3978:3978
+      - 32000:3000
     networks:
       - hsm-chatbot-network
     volumes:
@@ -57,7 +43,6 @@ services:
     restart: unless-stopped
     depends_on:
       - hsm-chatbot-base
-      - hsm-chatbot-tester
     #  - hsm-chatbot-db-postgres
     #  - hsm-chatbot-db-redis
     #  - hsm-chatbot-db-minio
